@@ -46,8 +46,9 @@ public class Extratonality {
         }
 
         //export data to CSV file
-        FileWriter writer = new FileWriter("Midi_results_generic_keys.csv");
-        writer.append("Title,C,C#,D,D#,E,F,F#,G,G#,A,A#,B,Key,Score\n");
+        FileWriter writer = new FileWriter("Midi_results.csv");
+        writer.append("Title,C,C#,D,D#,E,F,F#,G,G#,A,A#,B,Key,Score_detected," +
+                "Score_generic,Score_specific\n");
         for(Song s: songs){
             writer.append(s.name);
             for(int c: s.noteCounts){
@@ -55,9 +56,11 @@ public class Extratonality {
                 writer.append(Integer.toString(c));
             }
             writer.append(',');
-            writer.append(Integer.toString(s.key));
-            writer.append(',');
-            writer.append(Float.toString(s.score));
+            writer.append(Integer.toString(s.key_detected));
+            for(float f: s.scores){
+                writer.append(',');
+                writer.append(Float.toString(f));
+            }
             writer.append('\n');
         }
         writer.flush(); writer.close();
@@ -129,8 +132,7 @@ public class Extratonality {
                 break;
         }
 
-
-        Song song = new Song(f.getName(), notecounts, genKeySigs[index]);
-        return song;
+        return new Song(f.getName(), notecounts, key,
+                genKeySigs[index], keySigs[index]);
     }
 }
