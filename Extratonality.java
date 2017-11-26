@@ -2,6 +2,7 @@ import javax.sound.midi.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 
 /*
  * Parses through all of the midi files contained in the folder, and parses
@@ -51,9 +52,9 @@ public class Extratonality {
                 "Score_generic,Score_specific\n");
         for(Song s: songs){
             writer.append(s.name);
-            for(int c: s.noteCounts){
+            for(Long c: s.noteLengths){
                 writer.append(',');
-                writer.append(Integer.toString(c));
+                writer.append(Long.toString(c));
             }
             writer.append(',');
             writer.append(Integer.toString(s.key_detected));
@@ -78,6 +79,8 @@ public class Extratonality {
         int NOTE_OFF = 0x80;
         int trackNumber = 0;
         int[] notecounts = new int[12];
+        long[] noteLengths = new long[12];
+        HashMap<Integer, Long> sustained = new HashMap<>();
         Sequence sequence = null;
 
         try {
@@ -96,11 +99,24 @@ public class Extratonality {
                 MidiMessage message = event.getMessage();
                 if (message instanceof ShortMessage) {
                     ShortMessage sm = (ShortMessage) message;
+                    int key = sm.getData1();
+                    int note = key % 12;
                     if (sm.getCommand() == NOTE_ON) {
-                        int key = sm.getData1();
-                        int note = key % 12;
                         notecounts[note]++;
+
+                        //then, set hashmap note
+                        if(!sustained.containsKey(key)){
+                            sustained.put(key, event.getTick());
+                        }
                         x++;
+                    }
+                    //when note ends, update the array and update the hashmap
+                    //accordingly
+                    else if (sm.getCommand() == NOTE_OFF && sustained.containsKey(key)){
+                        long noteDuration = event.getTick() - sustained.get(key);
+
+                        noteLengths[note] += noteDuration;
+                        sustained.remove(key);
                     }
                 }
             }
@@ -126,13 +142,11 @@ public class Extratonality {
                 key = maxAt;
                 break;
             default:
-                System.out.println((maxAt - secondMaxAt + 12) % 12);
-                System.out.println(f.getName());
                 key = 12;
                 break;
         }
 
-        return new Song(f.getName(), notecounts, key,
+        return new Song(f.getName(), notecounts, noteLengths, key,
                 genKeySigs[index], keySigs[index]);
     }
 }
