@@ -14,6 +14,7 @@ public class Song {
         scores =  new float[3];
         name = "";
     }
+
     protected Song(String name, int[] noteCounts, long[] noteLengths,
                    int key_detected, int key_generic, int key_specific){
         this.name = name;
@@ -23,7 +24,6 @@ public class Song {
         this.key_specific = key_specific;
         this.noteLengths = noteLengths;
         scores = getScores();
-
     }
 
     private float[] getScores(){
@@ -33,28 +33,27 @@ public class Song {
                 calcScore(key_specific, true)};
     }
 
-    private float calcScore(int key, boolean length){
-        if(key == 12) return 0;  // this happens when program is not able to
+    private float calcScore(int aKey, boolean aLength){
+        if(aKey == 12) return 0;  // this happens when program is not able to
                                  // automatically detect a key signature
-        if(length) {
-            long keyNotes = noteCounts[(0 + key) % 12] + noteCounts[(2 + key) % 12] +
-                    noteCounts[(4 + key) % 12] + noteCounts[(5 + key) % 12] +
-                    noteCounts[(7 + key) % 12] + noteCounts[(9 + key) % 12] +
-                    noteCounts[(11 + key) % 12];
-            long nonKeyNotes = noteCounts[(1 + key) % 12] + noteCounts[(3 + key) % 12] +
-                    noteCounts[(6 + key) % 12] + noteCounts[(8 + key) % 12] +
-                    noteCounts[(10 + key) % 12];
+        if(aLength) {
+            long keyNotes = noteCounts[(0 + aKey) % 12] + noteCounts[(2 + aKey) % 12] +
+                    noteCounts[(4 + aKey) % 12] + noteCounts[(5 + aKey) % 12] +
+                    noteCounts[(7 + aKey) % 12] + noteCounts[(9 + aKey) % 12] +
+                    noteCounts[(11 + aKey) % 12];
+            long nonKeyNotes = noteCounts[(1 + aKey) % 12] + noteCounts[(3 + aKey) % 12] +
+                    noteCounts[(6 + aKey) % 12] + noteCounts[(8 + aKey) % 12] +
+                    noteCounts[(10 + aKey) % 12];
             return ((float) nonKeyNotes) / keyNotes;
         }
         else {
-
-            long keyNotesL = noteLengths[(0 + key) % 12] + noteLengths[(2 + key) % 12] +
-                    noteLengths[(4 + key) % 12] + noteLengths[(5 + key) % 12] +
-                    noteLengths[(7 + key) % 12] + noteLengths[(9 + key) % 12] +
-                    noteLengths[(11 + key) % 12];
-            long nonKeyNotesL = noteLengths[(1 + key) % 12] + noteLengths[(3 + key) % 12] +
-                    noteLengths[(6 + key) % 12] + noteLengths[(8 + key) % 12] +
-                    noteLengths[(10 + key) % 12];
+            long keyNotesL = noteLengths[(0 + aKey) % 12] + noteLengths[(2 + aKey) % 12] +
+                    noteLengths[(4 + aKey) % 12] + noteLengths[(5 + aKey) % 12] +
+                    noteLengths[(7 + aKey) % 12] + noteLengths[(9 + aKey) % 12] +
+                    noteLengths[(11 + aKey) % 12];
+            long nonKeyNotesL = noteLengths[(1 + aKey) % 12] + noteLengths[(3 + aKey) % 12] +
+                    noteLengths[(6 + aKey) % 12] + noteLengths[(8 + aKey) % 12] +
+                    noteLengths[(10 + aKey) % 12];
             return ((float) nonKeyNotesL) / keyNotesL;
         }
 

@@ -10,27 +10,28 @@ import java.util.HashMap;
  */
 public class Extratonality {
 
+    /* key signatures of Each movement of Beethven's 9 symphonies*/
     public static int[] keySigs =     {0,  0,  0,  0,
-                                 2,  2,  2,  2,
-                                 3,  3,  3,  3,
-                                 10, 3,  10, 10,
-                                 3,  3,  3,  0,
-                                 5, 10,  5,  5, 5,
-                                 9,  0,  5,  9,
-                                 5, 10,  5,  5,
-                                 5,  5,  10, 2, // last movement questionable
+                                       2,  2,  2,  2,
+                                       3,  3,  3,  3,
+                                       10, 3,  10, 10,
+                                       3,  3,  3,  0,
+                                       5, 10,  5,  5, 5,
+                                       9,  0,  5,  9,
+                                       5, 10,  5,  5,
+                                       5,  5,  10, 2, // last movement questionable
 
     };
 
-    public static int[] genKeySigs = {0,0,0,0, // 1
-                                2,2,2,2,       // 2
-                                3,3,3,3,       // 3
-                                10,10,10,10,    //4
-                                3,3,3,3,        //5
-                                5,5,5,5,5,      //6
-                                9,9,9,9,        //7
-                                5,5,5,5,        //8
-                                5,5,5,5};       //9
+    public static int[] genKeySigs = {0,0,0,0,       // 1
+                                      2,2,2,2,       // 2
+                                      3,3,3,3,       // 3
+                                      10,10,10,10,    //4
+                                      3,3,3,3,        //5
+                                      5,5,5,5,5,      //6
+                                      9,9,9,9,        //7
+                                      5,5,5,5,        //8
+                                      5,5,5,5};       //9
 
     public static void main(String[] args) throws IOException {
         String[] notes = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#",
@@ -45,6 +46,8 @@ public class Extratonality {
         for (int i = 0; i<files.length; i++) {
             songs[i] = processFile(files[i], i);
         }
+        java.util.Arrays.stream(files).collect(Collections.toList());
+
 
         //export data to CSV file
         FileWriter writer = new FileWriter("Midi_results.csv");
