@@ -1,9 +1,13 @@
+import java.util.Arrays;
+import java.util.List;
+
 public class Song {
-    public int[] noteCounts;
-    public long[] noteLengths;
-    public float[] scores;
-    public String name;
-    public int key_detected, key_generic, key_specific;
+    private int[] noteCounts;
+    private long[] noteLengths;
+    private String name;
+    private Note key_detected, key_generic, key_specific;
+    private double theDetectedScoreCount, theGenericScoreCount, theSpecificScoreCount;
+    private double theDetectedScoreLength, theGenericScoreLength, theSpecificScoreLength;
 
     /*
      * Object that contains the name of the piece, array of note counts for the piece,
@@ -11,50 +15,65 @@ public class Song {
      */
     public Song(){
         noteCounts = new int[12]; //by default, filled with zeros
-        scores =  new float[3];
         name = "";
     }
 
-    protected Song(String name, int[] noteCounts, long[] noteLengths,
-                   int key_detected, int key_generic, int key_specific){
+    public Song(String name, int[] noteCounts, long[] noteLengths,
+                Note key_detected, Note key_generic, Note key_specific){
         this.name = name;
         this.noteCounts = noteCounts;
         this.key_detected = key_detected;
         this.key_generic = key_generic;
         this.key_specific = key_specific;
         this.noteLengths = noteLengths;
-        scores = getScores();
+        calculateScores();
     }
 
-    private float[] getScores(){
-        return new float[] {calcScore(key_detected, false),
-                calcScore(key_generic, false), calcScore(key_specific, false),
-                calcScore(key_detected, true), calcScore(key_generic, true),
-                calcScore(key_specific, true)};
+    Note getKey_detected() {
+        return key_detected;
     }
 
-    private float calcScore(int aKey, boolean aLength){
-        if(aKey == 12) return 0;  // this happens when program is not able to
-                                 // automatically detect a key signature
+    long[] getNoteLengths() {
+        return noteLengths;
+    }
+
+    String getName() {
+        return name;
+    }
+
+    List<Double> getScores() {
+        return Arrays.asList(theDetectedScoreCount, theGenericScoreCount, theSpecificScoreCount, theDetectedScoreLength,
+                theGenericScoreLength, theSpecificScoreLength);
+    }
+
+    private void calculateScores(){
+        theDetectedScoreCount = calcScore(key_detected, false);
+        theGenericScoreCount = calcScore(key_generic, false);
+        theSpecificScoreCount = calcScore(key_specific, false);
+        theDetectedScoreLength = calcScore(key_detected, true);
+        theGenericScoreLength = calcScore(key_generic, true);
+        theSpecificScoreCount = calcScore(key_specific, true);
+    }
+
+    private double calcScore(Note aKey, boolean aLength){
+        if(aKey.ordinal() == 12) return 0;  // this happens when program is not able to
+                                              // automatically detect a key signature
+        int myKeyVal = aKey.ordinal();
+        List<Integer> myKeyIndexes = Arrays.asList(0, 2, 4, 5, 7, 9, 11); //C,D,E,F,G,A,B, for example
+        List<Integer> myNoneKeyIndexes = Arrays.asList(1, 3, 6, 8, 10);   // C#, D#, F#, G#, A#, for example
+
         if(aLength) {
-            long keyNotes = noteCounts[(0 + aKey) % 12] + noteCounts[(2 + aKey) % 12] +
-                    noteCounts[(4 + aKey) % 12] + noteCounts[(5 + aKey) % 12] +
-                    noteCounts[(7 + aKey) % 12] + noteCounts[(9 + aKey) % 12] +
-                    noteCounts[(11 + aKey) % 12];
-            long nonKeyNotes = noteCounts[(1 + aKey) % 12] + noteCounts[(3 + aKey) % 12] +
-                    noteCounts[(6 + aKey) % 12] + noteCounts[(8 + aKey) % 12] +
-                    noteCounts[(10 + aKey) % 12];
-            return ((float) nonKeyNotes) / keyNotes;
+            int keyNotes = myKeyIndexes.stream().mapToInt(aKeyIndex -> noteCounts[(aKeyIndex + myKeyVal) % 12]).sum();
+            int nonKeyNotes = myNoneKeyIndexes.stream()
+                    .mapToInt(aNonKeyIndex -> noteCounts[(aNonKeyIndex + myKeyVal) % 12]).sum();
+            return ((double) nonKeyNotes) / keyNotes;
         }
         else {
-            long keyNotesL = noteLengths[(0 + aKey) % 12] + noteLengths[(2 + aKey) % 12] +
-                    noteLengths[(4 + aKey) % 12] + noteLengths[(5 + aKey) % 12] +
-                    noteLengths[(7 + aKey) % 12] + noteLengths[(9 + aKey) % 12] +
-                    noteLengths[(11 + aKey) % 12];
-            long nonKeyNotesL = noteLengths[(1 + aKey) % 12] + noteLengths[(3 + aKey) % 12] +
-                    noteLengths[(6 + aKey) % 12] + noteLengths[(8 + aKey) % 12] +
-                    noteLengths[(10 + aKey) % 12];
-            return ((float) nonKeyNotesL) / keyNotesL;
+            double keyNotesL = myKeyIndexes.stream()
+                    .mapToDouble(aKeyIndex -> noteLengths[(aKeyIndex + myKeyVal) % 12]).sum();
+            double nonKeyNotesL = myNoneKeyIndexes.stream()
+                    .mapToDouble(aNonKeyIndex -> noteLengths[(aNonKeyIndex + myKeyVal) % 12]).sum();
+            return nonKeyNotesL / keyNotesL;
         }
 
     }
